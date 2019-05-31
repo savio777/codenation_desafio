@@ -3,7 +3,9 @@ import requests
 import hashlib
 
 # pegar o arquivo json
-resposta = requests.get('https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=[TOKEN]')
+resposta = requests.get('https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=[MEU_TOKEN]')
+
+resposta.encoding = 'utf-8'
 
 # carregar o json em uma variavel
 arquivo = resposta.json()
@@ -17,43 +19,38 @@ arquivo = resposta.json()
 # verificar tokens do json
 #print(arquivo.items())
 
+# guardar texto cifrado
 #m nywx mrzirx, xlir aemx yrxmp qer gsqiw evsyrh xs riihmrk alex m lezi mrzirxih. v. fygoqmrwxiv jyppiv
 texto_cifrado = arquivo['cifrado']
 
+# inicializar variavel
 texto = ''
 
-# voltando 4 casas as letras da frase 
+# voltando as letras da frase 4 casas para descriptografar  
 for i in texto_cifrado:
     if ord(i)>=97 and ord(i)<=122:
         texto += chr(ord(i)-4)
     else:
         texto += i
 
-# teste do texto decifrado 
-# i just invent, then ]ait until man comes around to needing ]hat i have invented. r. buckminster fuller
-#print(texto)
-
+# criar texto criptografado
 resumo = hashlib.sha1()
 resumo.update(texto.encode('utf-8'))
 
+# guardar texto decifrado e resumo criptografado
 arquivo['decifrado'] = texto
 arquivo['resumo_criptografico'] = resumo.hexdigest()
 
-#json modificado
-#print(arquivo)
+# criar arquivo
+with open('answer.json', 'w') as f:
+    json.dump(arquivo, f, ensure_ascii=False)
 
-arquivo['file'] = 'answer'
+# variavel q lê o arquivo
+arquivo_enviar = {'answer': open('answer.json', 'rb')}
 
-dados = json.dumps(arquivo)
+# enviar a resposta
+post = requests.post(url='https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=[MEU_TOKEN]', files=arquivo_enviar)
 
-print('json~> ', dados)
-print('tipo do arquivo~> ', type(dados), '\n')
-
-'''with open('answer.json', 'w') as saida:
-    json.dump(dados, saida)
-'''
-cabecalho = {'Content-type': 'application/json'}
-
-post = requests.post(url='https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?[TOKEN]', json=dados)
+# log da requisição
 print('resultado da requisição POST~> ', post.status_code)
-print('requisição POST~> ', post.json())
+print('requisição POST~> ', post.json(), '\n')
