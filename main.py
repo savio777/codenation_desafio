@@ -2,8 +2,10 @@ import json
 import requests
 import hashlib
 
+token = 'MEU TOKEN'
+
 # pegar o arquivo json
-resposta = requests.get('https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=[MEU_TOKEN]')
+resposta = requests.get('https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=' + token)
 
 resposta.encoding = 'utf-8'
 
@@ -11,7 +13,7 @@ resposta.encoding = 'utf-8'
 arquivo = resposta.json()
 
 # imprimir todo o json
-#print(arquivo)
+print(arquivo)
 
 # tipo da variavel
 #print(type(arquivo))
@@ -28,8 +30,12 @@ texto = ''
 
 # voltando as letras da frase 4 casas para descriptografar  
 for i in texto_cifrado:
-    if ord(i)>=97 and ord(i)<=122:
+    if ord(i)>=98 and ord(i)<=122:
         texto += chr(ord(i)-4)
+    # como o que vem depois de 97 (a) são caracteres especiais, e o desafio só aceita mudar letras pode concluir que a letra
+    # criptografada é o w
+    elif ord(i)==97:
+        texto += 'w'
     else:
         texto += i
 
@@ -49,7 +55,7 @@ with open('answer.json', 'w') as f:
 arquivo_enviar = {'answer': open('answer.json', 'rb')}
 
 # enviar a resposta
-post = requests.post(url='https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=[MEU_TOKEN]', files=arquivo_enviar)
+post = requests.post(url='https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=' + token, files=arquivo_enviar)
 
 # log da requisição
 print('resultado da requisição POST~> ', post.status_code)
